@@ -39,8 +39,18 @@ class TransactionFakeServiceImpl implements TransactionStorageContract {
 
   @override
   Future<Result<TransactionEntity, Failure>> fetchTransacion(String id) {
-    // TODO: implement fetchTransacion
-    throw UnimplementedError();
+    try {
+      final transaction = _api.transactions.firstWhere(
+        (item) => item.id == id,
+      );
+      return Future.value(Success(transaction));
+    } on StateError catch (e) {
+      return Future.value(Error(RecordNotFound('Na consulta: ${e.toString()}')));
+    } on Exception catch (e) {
+      return Future.value(
+        Error(DefaultError('Erro ao buscar a transação: ${e.toString()}')),
+      );
+    }
   }
 
   @override
@@ -116,6 +126,25 @@ class TransactionFakeServiceImpl implements TransactionStorageContract {
     } on Exception catch (e) {
       // Retorna erro em caso de falha.
       return Error(DefaultError('Erro ao Transações: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Result<void, Failure>> updateTransacion(
+    TransactionEntity transaction,
+  ) async {
+    try {
+      await _api.updateData(transaction.toJson());
+
+      return Success(null);
+    } on RecordNotFound catch (e) {
+      return Error(RecordNotFound('Na Atualização: ${e.toString()}'));
+    } on InvalidData catch (e) {
+      return Error(InvalidData('Na Atualização: ${e.toString()}'));
+    } on APIFailure catch (e) {
+      return Error(APIFailure(e.toString()));
+    } on Exception catch (e) {
+      return Error(DefaultError('Erro ao atualizar a transação: ${e.toString()}'));
     }
   }
 }

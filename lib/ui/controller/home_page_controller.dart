@@ -20,6 +20,7 @@ class HomePageController {
     load = Command0(_loadTransactions);
     searchTransactionsByDate = Command2(_searchTransactionsByDate);
     saveTransaction = Command1(_saveTransaction);
+    updateTransaction = Command1(_updateTransaction);
     undoDelectedTransaction = Command1(_undoDelectedTransaction);
     deleteTransaction = Command1(_deleteTransaction);
     //loadSample = Command0<void, void>(_resetToSample);
@@ -60,6 +61,7 @@ class HomePageController {
   // commands
   late final Command0<List<TransactionEntity>, Failure> load;
   late final Command1<void, Failure, TransactionEntity> saveTransaction;
+  late final Command1<void, Failure, TransactionEntity> updateTransaction;
   late final Command1<void, Failure, TransactionEntity> undoDelectedTransaction;
   late final Command1<void, Failure, String> deleteTransaction;
   late final Command2<List<TransactionEntity>, Failure, DateTime, DateTime>
@@ -144,6 +146,23 @@ class HomePageController {
 
     if (result.isSuccess) {
       _transactions.value = [..._transactions.value, transaction];
+    }
+
+    return result;
+  }
+
+  Future<Result<void, Failure>> _updateTransaction(
+    TransactionEntity transaction,
+  ) async {
+    final result = await _transactionsUseCases.updateTransaction.call((
+      transaction: transaction,
+    ));
+
+    if (result.isSuccess) {
+      _transactions.value = [
+        for (final current in _transactions.value)
+          if (current.id == transaction.id) transaction else current,
+      ];
     }
 
     return result;

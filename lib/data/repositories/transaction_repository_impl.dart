@@ -22,8 +22,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryContract {
 
   @override
   Future<Result<TransactionEntity, Failure>> getTransacion(String id) {
-    // TODO: implement getTransacion
-    throw UnimplementedError();
+    return _dataSource.fetchTransacion(id);
   }
 
   @override
@@ -37,6 +36,11 @@ class TransactionRepositoryImpl implements TransactionRepositoryContract {
   @override
   Future<Result<void, Failure>> saveTransacion(TransactionEntity transaction) {
     return _dataSource.storeTransacion(transaction);
+  }
+
+  @override
+  Future<Result<void, Failure>> updateTransacion(TransactionEntity transaction) {
+    return _dataSource.updateTransacion(transaction);
   }
 
   @override
