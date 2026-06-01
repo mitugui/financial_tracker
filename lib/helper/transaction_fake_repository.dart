@@ -60,6 +60,33 @@ class TransactionFakeRepository {
     transactions.add(TransactionEntity.fromMap(jsonDecode(transactionJson)));
   }
 
+  Future<void> updateData(String transactionJson) async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (Random().nextBool()) {
+      Random().nextBool()
+          ? throw APIFailure(MessagesError.apiError)
+          : throw InvalidData(MessagesError.recordInvalidFormat);
+    }
+
+    if (transactionJson.isEmpty) {
+      throw InvalidData(MessagesError.recordInvalidFormat);
+    }
+
+    final updatedTransaction = TransactionEntity.fromMap(
+      jsonDecode(transactionJson),
+    );
+    final index = transactions.indexWhere(
+      (element) => element.id == updatedTransaction.id,
+    );
+
+    if (index == -1) {
+      throw RecordNotFound(MessagesError.recordNotFound);
+    }
+
+    transactions[index] = updatedTransaction;
+  }
+
   Future<String> getDataByDateRange(
     DateTime startDate,
     DateTime endDate,
