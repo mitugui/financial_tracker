@@ -11,9 +11,6 @@ class TransactionForm extends StatefulWidget {
   /// e o resultado da execução
   final Command1<void, Failure, TransactionEntity> submitCommand;
 
-  /// Função de callback quando o formulário é enviado
-  //final Function(TransactionEntity newTransaction) onSubmit;
-
   /// Tipo de transação (receita ou despesa)
   final TransactionType type;
 
@@ -22,7 +19,6 @@ class TransactionForm extends StatefulWidget {
 
   const TransactionForm({
     super.key,
-    //required this.onSubmit,
     required this.type,
     required this.color,
     required this.submitCommand,
@@ -74,11 +70,9 @@ class _TransactionFormState extends State<TransactionForm> {
         type: widget.type,
       );
 
-      //widget.onSubmit(newTransaction);
       await widget.submitCommand.execute(newTransaction);
 
       if (widget.submitCommand.resultSignal.value?.isFailure ?? false) {
-        // Se o comando falhar, exibe uma mensagem de erro
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -92,14 +86,12 @@ class _TransactionFormState extends State<TransactionForm> {
         return;
       }
 
-      // Limpa os campos do formulário
       _titleController.clear();
       _amountController.clear();
       setState(() {
         _selectedDate = DateTime.now();
       });
 
-      // Mostra uma mensagem de sucesso
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${widget.type.nameSingular} Adicionada com Sucesso!'),
@@ -113,6 +105,11 @@ class _TransactionFormState extends State<TransactionForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final surfaceColor = theme.colorScheme.surfaceContainerHighest.withValues(
+      alpha: 0.45,
+    );
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Form(
@@ -120,77 +117,122 @@ class _TransactionFormState extends State<TransactionForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Campo de entrada para a descrição (título)
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Descrição',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: theme.dividerColor.withValues(alpha: 0.35),
                 ),
-                prefixIcon: const Icon(Icons.description),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Informe uma descrição';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Campo de entrada para o valor
-            TextFormField(
-              controller: _amountController,
-              decoration: InputDecoration(
-                labelText: 'Valor',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.attach_money),
-              ),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Informe um valor';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Digite um número válido';
-                }
-                if (double.parse(value) <= 0) {
-                  return 'O valor deve ser maior que zero';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Seção para exibir e escolher a data
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Data: ${DateFormat('dd/MM/yyyy').format(_selectedDate)}',
-                    style: Theme.of(context).textTheme.bodyLarge,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      labelText: 'Descrição',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.description),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Informe uma descrição';
+                      }
+                      return null;
+                    },
                   ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _amountController,
+                    decoration: InputDecoration(
+                      labelText: 'Valor',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.attach_money),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Informe um valor';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Digite um número válido';
+                      }
+                      if (double.parse(value) <= 0) {
+                        return 'O valor deve ser maior que zero';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: theme.dividerColor.withValues(alpha: 0.35),
                 ),
-                TextButton(
-                  onPressed: _presentDatePicker,
-                  child: Text(
-                    'Selecionar Data',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: widget.color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.event_outlined,
                       color: widget.color,
+                      size: 20,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Data',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          DateFormat('dd/MM/yyyy').format(_selectedDate),
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _presentDatePicker,
+                    child: Text(
+                      'Alterar',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: widget.color,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 32),
-
-            // Botão de envio do formulário
+            const SizedBox(height: 24),
             Watch((context) {
               final isRunning = widget.submitCommand.runningSignal.value;
 

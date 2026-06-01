@@ -307,49 +307,81 @@ class _TransactionCardSheetsState extends State<TransactionCardSheets>
                   color: Colors.grey.shade300,
                 ), // Borda cinza clara
               ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ), // Espaçamento interno do item
-                leading: CircleAvatar(
-                  radius: 22,
-                  backgroundColor: color.withValues(
-                    alpha: 0.2,
-                  ), // Fundo com transparência
-                  child: Icon(
-                    title == 'Income' ? Icons.attach_money : Icons.shopping_bag,
-                    color: color, // Cor do ícone conforme tipo
-                  ),
-                ),
-                title: Text(
-                  transaction.title, // Título da transação
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                subtitle: Text(
-                  Formatter.formatDate(transaction.date), // Data formatada
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      Formatter.formatCurrency(
-                        transaction.amount,
-                      ), // Valor formatado em moeda
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: color, // Cor do texto conforme tipo
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 88,
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      tooltip: 'Editar transação',
-                      icon: Icon(Icons.edit_outlined, color: color),
-                      onPressed: () => widget.onEdit(transaction),
+                  ),
+                  Expanded(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      leading: CircleAvatar(
+                        radius: 22,
+                        backgroundColor: color.withValues(alpha: 0.14),
+                        child: Icon(
+                          title == 'Income'
+                              ? Icons.south_west
+                              : Icons.north_east,
+                          color: color,
+                        ),
+                      ),
+                      title: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              transaction.title,
+                              style: Theme.of(context).textTheme.titleMedium,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          Formatter.formatDate(transaction.date),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            Formatter.formatCurrency(transaction.amount),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: color,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            tooltip: 'Editar transação',
+                            icon: Icon(Icons.edit_outlined, color: color, size: 20),
+                            onPressed: () => widget.onEdit(transaction),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );
