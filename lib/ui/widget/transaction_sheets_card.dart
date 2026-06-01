@@ -11,6 +11,7 @@ class TransactionCardSheets extends StatefulWidget {
   incomeTransactions; // Lista de transações de receitas
   final List<TransactionEntity>
   expenseTransactions; // Lista de transações de despesas
+  final ValueChanged<TransactionEntity> onEdit;
   final Function(String id)
   onDelete; // Callback para deletar uma transação pelo ID
 
@@ -23,6 +24,7 @@ class TransactionCardSheets extends StatefulWidget {
     super.key,
     required this.incomeTransactions,
     required this.expenseTransactions,
+    required this.onEdit,
     required this.onDelete,
     required this.undoDelete,
     required this.scaffoldContext,
@@ -328,14 +330,25 @@ class _TransactionCardSheetsState extends State<TransactionCardSheets>
                   Formatter.formatDate(transaction.date), // Data formatada
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                trailing: Text(
-                  Formatter.formatCurrency(
-                    transaction.amount,
-                  ), // Valor formatado em moeda
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color, // Cor do texto conforme tipo
-                  ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      Formatter.formatCurrency(
+                        transaction.amount,
+                      ), // Valor formatado em moeda
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: color, // Cor do texto conforme tipo
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      tooltip: 'Editar transação',
+                      icon: Icon(Icons.edit_outlined, color: color),
+                      onPressed: () => widget.onEdit(transaction),
+                    ),
+                  ],
                 ),
               ),
             ),

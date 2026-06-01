@@ -5,6 +5,7 @@ import 'package:financial_tracker/ui/controller/home_page_controller.dart';
 import 'package:financial_tracker/ui/widget/date_filter_transactions.dart';
 import 'package:financial_tracker/ui/widget/summary_carousel.dart';
 import 'package:financial_tracker/ui/widget/transaction_sheet.dart';
+import 'package:financial_tracker/ui/widget/transaction_update_sheet.dart';
 import 'package:financial_tracker/ui/widget/transaction_sheets_card.dart';
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
@@ -173,6 +174,9 @@ class _HomeScreenState extends State<HomeScreen> {
               return TransactionCardSheets(
                 incomeTransactions: incomes,
                 expenseTransactions: expenses,
+                onEdit: (transaction) {
+                  _showUpdateSheet(context, transaction);
+                },
                 onDelete: (id) {
                   viewModelController.deleteTransaction.execute(id);
                 },
@@ -269,6 +273,14 @@ class _HomeScreenState extends State<HomeScreen> {
       // onSubmit: (title, amount, date) {
       //   transactionProvider.addExpense(title, amount, date);
       // },
+    );
+  }
+
+  void _showUpdateSheet(BuildContext context, TransactionEntity transaction) {
+    TransactionUpdateSheet.show(
+      context: context,
+      transaction: transaction,
+      submitCommand: viewModelController.updateTransaction,
     );
   }
 }
