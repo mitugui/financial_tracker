@@ -40,84 +40,126 @@ class _TransactionFormState extends State<TransactionForm> {
 
   @override
   void dispose() {
+    final theme = Theme.of(context);
+    final surfaceColor = theme.colorScheme.surfaceContainerHighest.withValues(
+      alpha: 0.45,
+    );
+
     _titleController.dispose();
     _amountController.dispose();
     super.dispose();
   }
-
-  /// Exibe o seletor de datas e atualiza a data selecionada
-  void _presentDatePicker() async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        _selectedDate = pickedDate;
-      });
-    }
-  }
-
-  /// Envia o formulário se a validação for bem-sucedida
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      final enteredTitle = _titleController.text;
-      final enteredAmount = double.parse(_amountController.text);
-
-      final newTransaction = TransactionEntity(
-        title: enteredTitle,
-        amount: enteredAmount,
-        date: _selectedDate,
-        type: widget.type,
-      );
-
-      //widget.onSubmit(newTransaction);
-      await widget.submitCommand.execute(newTransaction);
-
-      if (widget.submitCommand.resultSignal.value?.isFailure ?? false) {
-        // Se o comando falhar, exibe uma mensagem de erro
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Erro ao adicionar ${widget.type.nameSingular}: ${widget.submitCommand.resultSignal.value?.failureValueOrNull ?? 'Erro desconhecido'}',
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-        Navigator.pop(context);
-        return;
-      }
-
-      // Limpa os campos do formulário
-      _titleController.clear();
-      _amountController.clear();
-      setState(() {
-        _selectedDate = DateTime.now();
-      });
-
-      // Mostra uma mensagem de sucesso
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${widget.type.nameSingular} Adicionada com Sucesso!'),
-          backgroundColor: widget.color,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-      Navigator.pop(context);
-    }
-  }
-
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: theme.dividerColor.withValues(alpha: 0.35)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      labelText: 'Descrição',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.description),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Informe uma descrição';
+                      }
+                      return null;
+                    },
   @override
-  Widget build(BuildContext context) {
-    return Padding(
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _amountController,
+                    decoration: InputDecoration(
+                      labelText: 'Valor',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.attach_money),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Informe um valor';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Digite um número válido';
+                      }
+                      if (double.parse(value) <= 0) {
+                        return 'O valor deve ser maior que zero';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
       padding: const EdgeInsets.all(16.0),
       child: Form(
-        key: _formKey,
-        child: Column(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: theme.dividerColor.withValues(alpha: 0.35)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: widget.color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.event_outlined, color: widget.color, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Data',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          DateFormat('dd/MM/yyyy').format(_selectedDate),
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _presentDatePicker,
+                    child: Text(
+                      'Alterar',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: widget.color,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Campo de entrada para a descrição (título)
@@ -217,9 +259,9 @@ class _TransactionFormState extends State<TransactionForm> {
                             ),
                           )
                           : Text(
-                            'Adicionar ${widget.type.nameSingular}',
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                              'Adicionar ${widget.type.nameSingular}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
                 ),
               );
             }),
