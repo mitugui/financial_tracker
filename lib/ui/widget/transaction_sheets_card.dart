@@ -346,24 +346,6 @@ class _TransactionCardSheetsState extends State<TransactionCardSheets>
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              title == 'Income' ? 'Entrada' : 'Saída',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: color,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       subtitle: Padding(
